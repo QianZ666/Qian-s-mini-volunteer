@@ -40,7 +40,7 @@ router.post('/createPost', upload.single('photo'), async (req, res) => {
     });
 
     await newPost.save();
-    res.redirect('/main');
+    res.redirect('/');
   } catch (err) {
     console.error('Create post error:', err);
     res.status(500).send('Failed to create post. Please check address format.');
@@ -48,15 +48,16 @@ router.post('/createPost', upload.single('photo'), async (req, res) => {
 });
 
 async function geocodeAddress(address) {
-  const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address)}&format=json&limit=1`;
-  const response = await axios.get(url, {
-    headers: { 'User-Agent': 'ShareTimeApp/1.0' }
-  });
-  if (response.data.length === 0) {
+  const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+  const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${apiKey}`;
+  console.log('Geocoding URL');
+  const response = await axios.get(url);
+  console.log('Geocoding response:', response.data);
+  if (response.data.status !== 'OK' || response.data.results.length === 0) {
     throw new Error('Address not found');
   }
-  const { lat, lon } = response.data[0];
-  return { lat: parseFloat(lat), lng: parseFloat(lon) };
+  const location = response.data.results[0].geometry.location;
+  return { lat: location.lat, lng: location.lng };
 }
 
 module.exports = router;
