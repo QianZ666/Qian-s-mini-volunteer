@@ -15,15 +15,35 @@
           >
         </div>
         <div class="mb-3">
-              <label for="title" class="form-label">Duration</label>
-              <select class="form-control" id="duration" name="duration" required>
-                <option value="" disabled selected>Select duration</option>
-                <option value="30 minutes">30 minutes</option>
-                <option value="1 hour">1 hour</option>
-                <option value="2 hours">2 hours</option>
-                <option value="Half day">Half day</option>
-                <option value="Full day">Full day</option>
-              </select>
+              <label for="location" class="form-label">Location</label>
+              <input
+                type="text"
+                class="form-control"
+                id="location"
+                name="location"
+                placeholder="Enter address or location"
+                required
+              >
+        </div>
+        <div class="mb-3">
+          <label for="date" class="form-label">Date</label>
+          <input
+            type="date"
+            class="form-control"
+            id="date"
+            name="date"
+            required
+          >
+        </div>
+        <div class="mb-3">
+          <label for="time" class="form-label">Preferred Time</label>
+          <input
+            type="time"
+            class="form-control"
+            id="time"
+            name="time"
+            required
+          >
         </div>
         <div class="mb-3">
           <label for="urgency" class="form-label">Urgency</label>
@@ -34,6 +54,17 @@
             <option value="High">⭐⭐⭐High</option>
             <option value="Urgent">⭐⭐⭐⭐Urgent</option>
           </select>
+        </div>
+        <div class="mb-3">
+          <label for="contact" class="form-label">Preferred Contact Info (optional)</label>
+          <input
+            type="text"
+            class="form-control"
+            id="contact"
+            name="contact"
+            placeholder="e.g. email, phone or text"
+            required
+          >
         </div>
         <!-- Description field -->
         <div class="mb-3">

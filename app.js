@@ -22,6 +22,7 @@ app.set('views', path.join(__dirname,'views'));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
 
 //connect to MongoDB
 mongoose.connect(uri)
@@ -41,7 +42,7 @@ app.get('/', async (req, res) => {
   res.render('main');
 });
 
-const postDetailRoutes = require('./routes/createPost');
-app.use('/', postDetailRoutes);
+const postRoutes = require('./routes/createPost');
+app.use('/', postRoutes);
 
 app.listen(3000, () => console.log('Server started on port 3000'));
