@@ -7,8 +7,10 @@ const app = express();
 const path = require('path');
 const bcrypt = require('bcrypt');
 const saltRounds = 12;
+const Joi = require("joi");
 
-const { connectToDatabase, userCollection } = require('./databaseconnection');
+const { connectToDatabase} = require('./databaseconnection');
+const User = require('./models/user'); 
 const uri = `mongodb+srv://${process.env.MONGODB_USER}:${process.env.MONGODB_PASSWORD}@cluster0.qkqrsri.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 const expireTime = 24 * 60 * 60 * 1000; //expires after 1 day  (hours * minutes * seconds * millis)
 
@@ -66,7 +68,8 @@ app.post('/submitUser', async (req,res) => {
     });
 
     const validationResult = schema.validate({username, email, password});
-    const result = await userCollection.find({email: email}).project({email: 1}).toArray();
+    const result = await User.find({ email: email }).select('email').lean();
+
 
     if (validationResult.error != null) {
       console.log(validationResult.error);
@@ -89,7 +92,7 @@ app.post('/submitUser', async (req,res) => {
         savedTerms:  [],
         savedPosts:  []
       };
-      await userCollection.insertOne(newUser);
+      await User.insertOne(newUser);
       console.log("Inserted user");
 
       const html = `
@@ -146,8 +149,8 @@ app.post('/loggingin', async (req,res) => {
       res.send(html);
     return;
   }
+ const result = await User.find({ email: email }).select('email username hashedPassword _id').lean();
 
-  const result = await userCollection.find({email: email}).project({email: 1, username: 1, hashedPassword: 1, _id: 1}).toArray();
 
   console.log(result);
 
@@ -180,7 +183,7 @@ app.post('/loggingin', async (req,res) => {
     req.session.userId        = result[0]._id.toString();
     req.session.cookie.maxAge = expireTime;
 
-    res.redirect('/main');
+    res.redirect('/');
     return;
   }
   else {
