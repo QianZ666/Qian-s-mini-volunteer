@@ -47,8 +47,24 @@ app.get("/signup", function(req, res) {
 app.get("/login", function (req, res) {
   res.render('login');
 });
+app.use(async (req, res, next) => {
+  if (req.session && req.session.userId) {
+    try {
+      const user = await UserModel.findById(req.session.userId).select('_id username email');
+      if (user) {
+        req.user = user;
+      }
+    } catch (err) {
+      console.error('Error attaching user to req:', err);
+    }
+  }
+  next();
+});
 const postRoutes = require('./routes/createPost');
 app.use('/', postRoutes);
+
+const UserModel = require('./models/user');
+
 
 //signup route
 app.post('/submitUser', async (req,res) => {

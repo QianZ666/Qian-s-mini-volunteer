@@ -9,7 +9,10 @@ const userSchema = new mongoose.Schema({
     notificationsEnabled: Boolean,
     profilePublic: Boolean
   },
-  posts: Array,
+  posts: [{
+  type: mongoose.Schema.Types.ObjectId,
+  ref: 'Post'
+}],
   savedTerms: Array,
   savedPosts: Array
 });

@@ -28,15 +28,17 @@ router.post('/createPost', upload.single('photo'), async (req, res) => {
     const coords = await geocodeAddress(location);
 
     const newPost = new Post({
-      title,
-      location,
-      coords,
-      date,
-      time,
-      urgency,
-      contact,
-      description,
-      photoPath: req.file ? `/uploads/${req.file.filename}` : null
+        title: req.body.title,
+        location: req.body.location,
+        coords: req.body.coords,
+        date: req.body.date,
+        time: req.body.time,
+        urgency: req.body.urgency,
+        contact: req.body.contact,
+        description: req.body.description,
+        photoPath: req.body.photoPath,
+
+        user: req.user._id 
     });
 
     await newPost.save();
