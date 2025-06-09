@@ -224,6 +224,9 @@ app.post('/loggingin', async (req,res) => {
   }
 });
 
+const apiRoutes = require('./routes/api');
+app.use('/api', apiRoutes);
+
 app.get('/logout', (req,res) => {
 	req.session.destroy();
     var html = `

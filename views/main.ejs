@@ -9,7 +9,6 @@
     let map;
 
     function initMap() {
-      // Default location (Vancouver) in case geolocation fails
       const defaultLocation = { lat: 49.2827, lng: -123.1207 };
 
       map = new google.maps.Map(document.getElementById("map"), {
@@ -34,14 +33,47 @@
             });
           },
           () => {
-            // Geolocation failed or blocked
             handleLocationError(true, map.getCenter());
           }
         );
       } else {
-        // Browser doesn't support geolocation
         handleLocationError(false, map.getCenter());
       }
+
+      // load posts and show the Marker
+      fetch('/api/posts')
+        .then(res => res.json())
+        .then(posts => {
+          posts.forEach(post => {
+            const marker = new google.maps.Marker({
+              position: post.coords,
+              map: map,
+              title: post.title,
+              icon: {
+                url: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png'
+              }
+
+            });
+
+            const infoWindow = new google.maps.InfoWindow({
+              content: `
+                <div>
+                  <h3>${post.title}</h3>
+                  <p><strong>地点:</strong> ${post.location}</p>
+                  <p>${post.description}</p>
+                  <p><a href="/post/${post._id}">Check Detailed Info</a></p>
+                </div>
+              `
+            });
+
+            marker.addListener('click', () => {
+              infoWindow.open(map, marker);
+            });
+          });
+        })
+        .catch(err => {
+          console.error('Failed to load posts:', err);
+        });
     }
 
     function handleLocationError(browserHasGeolocation, pos) {
