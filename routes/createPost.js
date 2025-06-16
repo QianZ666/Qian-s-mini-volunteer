@@ -20,6 +20,23 @@ router.get('/createPost', async (req, res) => {
   res.render('createPost');
 });
 
+//GET/post/:id
+router.get('/post/:id', async (req, res) => {
+  try {
+    const postId = req.params.id;
+    const post = await Post.findById(postId);
+
+    if (!post) {
+      return res.status(404).send('Post not found');
+    }
+
+    res.render('postDetail', { post });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Server error');
+  }
+});
+
 router.post('/createPost', upload.single('photo'), async (req, res) => {
   try {
     const { title, date,location, time, urgency, contact, description } = req.body;
