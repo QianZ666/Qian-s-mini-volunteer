@@ -2,6 +2,7 @@
     <!-- Make a post container  -->
     <div class="container mt-5">
       <h2 class="mb-4">Describe your need</h2>
+
       <form action="/createpost" method="POST" enctype="multipart/form-data">
         <div class="mb-3">
           <label for="title" class="form-label">Title</label>
@@ -14,17 +15,21 @@
             required
           >
         </div>
-        <div class="mb-3">
+              <div id="map" style="height: 300px; width: 100%; margin-bottom: 20px;"></div>
+              <input type="hidden" id="lat" name="lat">
+              <input type="hidden" id="lng" name="lng">
+              <div class="mb-3">
               <label for="location" class="form-label">Location</label>
               <input
                 type="text"
                 class="form-control"
                 id="location"
                 name="location"
-                placeholder="Enter address or location"
+                placeholder="Detecting your location"
                 required
               >
         </div>
+
         <div class="mb-3">
           <label for="date" class="form-label">Date</label>
           <input
