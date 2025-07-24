@@ -62,6 +62,8 @@ app.use(async (req, res, next) => {
 });
 const postRoutes = require('./routes/createPost');
 app.use('/', postRoutes);
+const geocodeRoutes = require("./routes/api/geocode");
+app.use("/api",geocodeRoutes);
 
 const UserModel = require('./models/user');
 

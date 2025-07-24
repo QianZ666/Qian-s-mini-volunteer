@@ -103,14 +103,19 @@ function initCreatePostMap(map) {
         document.getElementById("lat").value = lat;
         document.getElementById("lng").value = lng;
 
-        const geocoder = new google.maps.Geocoder();
-        geocoder.geocode({ location: latLng }, function (results, status) {
-          if (status === "OK" && results[0]) {
-            document.getElementById("location").value = results[0].formatted_address;
-          } else {
-            document.getElementById("location").placeholder = "Address not found";
-          }
-        });
+        fetch(`/api/reverse-geocode?lat=${lat}&lng=${lng}`)
+          .then(res => res.json())
+          .then(data => {
+            if (data.results && data.results[0]) {
+              document.getElementById("location").value = data.results[0].formatted_address;
+            } else {
+              document.getElementById("location").placeholder = "Address not found";
+            }
+          })
+          .catch(err => {
+            console.error("Reverse geocoding failed:", err);
+            document.getElementById("location").placeholder = "Enter manually";
+          });
       },
       function (error) {
         console.error("Geolocation failed:", error);

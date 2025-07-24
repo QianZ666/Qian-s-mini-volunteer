@@ -17,8 +17,11 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 router.get('/createPost', async (req, res) => {
-  res.render('createPost');
+  res.render('createPost', {
+    GEOCODING_API_KEY: process.env.GEOCODING_API_KEY
+  });
 });
+
 
 //GET/post/:id
 router.get('/post/:id', async (req, res) => {
@@ -41,19 +44,20 @@ router.post('/createPost', upload.single('photo'), async (req, res) => {
   try {
     const { title, date,location, time, urgency, contact, description } = req.body;
 
+    console.log("📍 address before geocoding:", location);
     // 调用 geocode 获取经纬度
     const coords = await geocodeAddress(location);
-
+    
     const newPost = new Post({
-        title: req.body.title,
-        location: req.body.location,
-        coords: req.body.coords,
-        date: req.body.date,
-        time: req.body.time,
-        urgency: req.body.urgency,
-        contact: req.body.contact,
-        description: req.body.description,
-        photoPath: req.body.photoPath,
+        title,
+        location,
+        coords,
+        date,
+        time,
+        urgency,
+        contact,
+        description,
+        photoPath:  req.file ? '/uploads/' + req.file.filename : null,
 
         user: req.user._id 
     });
@@ -67,7 +71,7 @@ router.post('/createPost', upload.single('photo'), async (req, res) => {
 });
 
 async function geocodeAddress(address) {
-  const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+  const apiKey = process.env.GEOCODING_API_KEY;
   const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${apiKey}`;
   console.log('Geocoding URL');
   const response = await axios.get(url);

@@ -3,7 +3,7 @@
     <div class="container mt-5">
       <h2 class="mb-4">Describe your need</h2>
 
-      <form action="/createpost" method="POST" enctype="multipart/form-data">
+      <form action="/createPost" method="POST" enctype="multipart/form-data">
         <div class="mb-3">
           <label for="title" class="form-label">Title</label>
           <input
@@ -61,7 +61,7 @@
           </select>
         </div>
         <div class="mb-3">
-          <label for="contact" class="form-label">Preferred Contact Info (optional)</label>
+          <label for="contact" class="form-label">Preferred Contact Info </label>
           <input
             type="text"
             class="form-control"
@@ -102,5 +102,7 @@
       </form>
     </div>
     <script src="/js/mapLoader.js"></script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDcVh_OFbpHlxrZo6KlPLYZm223Oe-Qu3A&callback=initMap" async defer></script>
+    <script src="/js/uploadHandler.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=<%= process.env.MAPS_JS_API_KEY %>&callback=initMap" async defer></script>
+
 <%- include('footer') %>
