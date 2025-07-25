@@ -57,7 +57,7 @@ router.post('/createPost', upload.single('photo'), async (req, res) => {
         urgency,
         contact,
         description,
-        photoPath:  req.file ? '/uploads/' + req.file.filename : null,
+        photoPath:  req.file ?  req.file.filename : null,
 
         user: req.user._id 
     });

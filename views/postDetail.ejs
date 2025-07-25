@@ -5,11 +5,12 @@
       <div class="post-content shadow-sm p-4 bg-white rounded">
 
         <!-- 封面图片 -->
-        <% if (post.photo) { %>
-          <img src="/uploads/<%= post.photo %>" alt="post-image" class="img-fluid rounded mb-3">
+        <% if (post.photoPath) { %>
+          <img src="<%= post.photoPath %>" alt="post-image" class="img-fluid w-50 rounded mb-3">
         <% } else { %>
           <img src="https://www.bootdey.com/image/400x150/FFB6C1/000000" alt="default-image" class="img-fluid rounded mb-3">
         <% } %>
+        
 
         <div class="post-container">
           <!-- 发帖人头像 -->
