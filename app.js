@@ -26,6 +26,21 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
 
+function requireLogin(req, res, next) {
+  if (!req.session || !req.session.authenticated) {
+    return res.status(401).send(`
+      <html>
+        <head><title>Unauthorized</title></head>
+        <body>
+          <h1>401 - Unauthorized</h1>
+          <p>You must be logged in to access this page.</p>
+          <a href="/login">Login</a>
+        </body>
+      </html>
+    `);
+  }
+  next();
+}
 
 //session middleware
 app.use(session({

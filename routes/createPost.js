@@ -4,6 +4,8 @@ const multer = require('multer');
 const axios = require('axios');
 const path = require('path');
 const Post = require('../models/post');
+const User = require('../models/user');
+
 
 // 配置 multer：图片上传到 public/uploads 文件夹
 const storage = multer.diskStorage({
@@ -28,12 +30,32 @@ router.get('/post/:id', async (req, res) => {
   try {
     const postId = req.params.id;
     const post = await Post.findById(postId);
+  
 
     if (!post) {
       return res.status(404).send('Post not found');
     }
+    let isOwner = false;
 
-    res.render('postDetail', { post });
+    if (
+      req.user &&
+      req.user._id &&
+      post.user && (
+        typeof post.user === 'object' || typeof post.user === 'string'
+      )
+    ) {
+      const postUserId = typeof post.user === 'object' && post.user.toString
+        ? post.user.toString()
+        : post.user;
+
+      const currentUserId = typeof req.user._id === 'object' && req.user._id.toString
+        ? req.user._id.toString()
+        : req.user._id;
+
+         isOwner = postUserId === currentUserId;
+    }
+
+    res.render('postDetail', { post, user: req.user,isOwner });
   } catch (error) {
     console.error(error);
     res.status(500).send('Server error');
@@ -82,5 +104,71 @@ async function geocodeAddress(address) {
   const location = response.data.results[0].geometry.location;
   return { lat: location.lat, lng: location.lng };
 }
+
+// 接受任务：保存志愿者信息
+router.post('/acceptTask/:postId', async (req, res) => {
+  try {
+    const { postId } = req.params;
+    const { name, phone } = req.body;
+
+    if (!req.user){
+      return res.status(401).send('Not logged in');
+    }
+
+    const post = await Post.findById(postId);
+    if (!post || post.volunteer) {
+      return res.status(400).send('Task not available');
+    }
+    if (!post) {
+      return res.status(404).send('Post not found');
+    }
+
+    if (post.volunteer) {
+      return res.status(400).send('Task already accepted');
+    }
+
+    post.volunteer = {
+      name,
+      phone,
+      userId: req.user._id,
+      status: 'holding'
+    };
+
+    await post.save();
+    res.redirect('/post/' + postId);
+  } catch (error) {
+    console.error('Accept task error:', error);
+    res.status(500).send('Server error');
+  }
+});
+
+// 完成任务：更新状态并加分
+router.post('/completeTask/:postId', async (req, res) => {
+  try {
+    const { postId } = req.params;
+    const post = await Post.findById(postId);
+
+    if (!post || !post.volunteer) {
+      return res.status(400).send('Invalid task');
+    }
+
+    if (post.volunteer.userId.toString() !== req.user._id.toString()) {
+      return res.status(403).send('You are not the assigned volunteer');
+    }
+
+    post.volunteer.status = 'completed';
+
+    // 给志愿者加分（注意你可能需要在 User 模型中添加积分字段）
+    const user = await require('../models/user').findById(req.user._id);
+    user.points = (user.points || 0) + 1;
+    await user.save();
+
+    await post.save();
+    res.redirect('/post/' + postId);
+  } catch (error) {
+    console.error('Complete task error:', error);
+    res.status(500).send('Server error');
+  }
+});
 
 module.exports = router;

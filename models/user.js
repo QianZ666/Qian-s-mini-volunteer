@@ -5,6 +5,10 @@ const userSchema = new mongoose.Schema({
   email: String,
   hashedPassword: String,
   avatarUrl: String,
+  points:{
+    type:Number,
+    default:0
+  },
   privacySettings: {
     notificationsEnabled: Boolean,
     profilePublic: Boolean
