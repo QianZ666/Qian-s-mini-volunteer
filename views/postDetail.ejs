@@ -31,57 +31,26 @@
               <hr>
               <p><%= post.description %></p>
 
-            <% if (isOwner) { %>
-              <!-- This is your own post -->
-              <p class="text-muted">📝 This is a task you created.</p>
 
-              <% if (!post.volunteer) { %>
-                <p>Waiting for a volunteer to accept this task...</p>
-              <% } else { %>
-                <p>Volunteer: <%= post.volunteer.name %> (Status: <%= post.volunteer.status %>)</p>
+            <!-- comment -->
+            <form action="/post/<%= post._id %>/comment" method="POST" class="d-flex mt-2">
+              <input type="text" name="text" class="form-control me-2" placeholder="Leave a comment" required>
+              <button type="submit" class="btn btn-primary">Send</button>
+            </form>
+
+            <!-- show-->
+            <div id="comment-list" class="mt-3">
+              <% if (post.comments && post.comments.length > 0) { %>
+                <% post.comments.forEach(comment => { %>
+                  <div class="d-flex align-items-center mt-2">
+                    <img src="/uploads/default-avatar.png" class="profile-photo-sm me-2">
+                    <span><%= comment.text %></span>
+                  </div>
+                <% }) %>
               <% } %>
-
-            <% } else if (!post.volunteer|| !post.volunteer.userId) { %>
-              <!-- Task has not been accepted yet -->
-              <button id="acceptBtn" class="btn btn-primary">Accept</button>
-
-              <div id="volunteerForm" style="display:none;" class="mt-3">
-                <form id="acceptForm" data-postid="<%= post._id %>">
-                  <input type="text" name="name" placeholder="Your Name" class="form-control mb-2" required>
-                  <input type="text" name="phone" placeholder="Your Phone Number" class="form-control mb-2" required>
-                  <button type="submit" class="btn btn-success">Submit</button>
-                </form>
-              </div>
-
-            <% } else if (
-                    post.volunteer &&
-                    post.volunteer.userId &&
-                    user &&
-                    user._id &&
-                    post.volunteer.userId.toString() === user._id.toString() &&
-                    post.volunteer.status === 'holding'
-              ) { %>
-              <!-- Current user is the volunteer and task is not yet completed -->
-              <form action="/completeTask/<%= post._id %>" method="POST">
-                <button type="submit" class="btn btn-success">Mark as Completed</button>
-              </form>
-
-            <% } else { %>
-              <!-- Task already accepted by another volunteer -->
-              <p class="text-muted">✅ This task has already been accepted.</p>
-            <% } %>
-
-
-            <!-- 评论部分（你未来可以加评论系统） -->
-            <div class="line-divider"></div>
-            <div class="post-comment d-flex align-items-center mt-3">
-              <img src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="" class="profile-photo-sm me-2">
-              <input type="text" class="form-control" placeholder="Leave a comment">
             </div>
-
           </div>
         </div>
-
       </div>
     </div>
   </div>

@@ -31,7 +31,21 @@ const postSchema = new mongoose.Schema({
       enum:['open', 'holding', 'completed'],
       default:'open'
     }
-  }
+  },
+  comments: [
+    {
+      user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+      text: String,
+      date: { type: Date, default: Date.now },
+      // replies: [
+      //   {
+      //     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+      //     text: String,
+      //     date: { type: Date, default: Date.now }
+      //   }
+      // ]
+    }
+  ]
 });
 
 module.exports = mongoose.model('Post', postSchema);

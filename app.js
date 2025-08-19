@@ -8,9 +8,8 @@ const path = require('path');
 const bcrypt = require('bcrypt');
 const saltRounds = 12;
 const Joi = require("joi");
-
+const User = require('./models/user');
 const { connectToDatabase} = require('./databaseconnection');
-const User = require('./models/user'); 
 const uri = `mongodb+srv://${process.env.MONGODB_USER}:${process.env.MONGODB_PASSWORD}@cluster0.qkqrsri.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 const expireTime = 24 * 60 * 60 * 1000; //expires after 1 day  (hours * minutes * seconds * millis)
 
@@ -65,7 +64,7 @@ app.get("/login", function (req, res) {
 app.use(async (req, res, next) => {
   if (req.session && req.session.userId) {
     try {
-      const user = await UserModel.findById(req.session.userId).select('_id username email');
+      const user = await User.findById(req.session.userId).select('_id username email');
       if (user) {
         req.user = user;
       }
@@ -80,7 +79,6 @@ app.use('/', postRoutes);
 const geocodeRoutes = require("./routes/api/geocode");
 app.use("/api",geocodeRoutes);
 
-const UserModel = require('./models/user');
 
 
 //signup route
