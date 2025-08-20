@@ -239,6 +239,16 @@ app.post('/loggingin', async (req,res) => {
   }
 });
 
+//profile route
+app.get("/profile", (req, res) => {
+  // if (!req.session.user){
+  //   return res.redirect("/login")
+  // }
+
+  res.render('profile');
+
+});
+
 const apiRoutes = require('./routes/api');
 app.use('/api', apiRoutes);
 
