@@ -50,13 +50,13 @@ router.post('/createPost', upload.single('photo'), async (req, res) => {
       urgency,
       contact,
       description,
-      photoPath: req.file ? req.file.filename : null,
+      photoPath: req.file ? `/uploads/${req.file.filename}` : null,
       user: req.user._id,
       comments: []  // 初始化评论数组
     });
 
     await newPost.save();
-    res.redirect('/');
+    res.redirect('main');
   } catch (err) {
     console.error('Create post error:', err);
     res.status(500).send('Failed to create post. Please check address format.');
@@ -67,6 +67,8 @@ router.post('/createPost', upload.single('photo'), async (req, res) => {
 router.get('/post/:id', async (req, res) => {
   try {
     const post = await Post.findById(req.params.id).lean();
+    // console.log("DEBUG: /post/:id got", req.params.id);
+
     if (!post) return res.status(404).send('Post not found');
 
     const isOwner = req.user && post.user.toString() === req.user._id.toString();
@@ -112,5 +114,41 @@ async function geocodeAddress(address) {
   const location = response.data.results[0].geometry.location;
   return { lat: location.lat, lng: location.lng };
 }
+//接受任务
+router.post("/acceptTask/:postId", async(req,res) => {
+  try {
+    if(!req.session.userId){
+      return res.status(401).json({error:"Please log in"});
+    }
 
+    const postId = req.params.postId;
+    const userId = req.session.user.id;
+    const {name, phone} = req.body;
+
+    const post = await Post.findById(postId);
+
+    if(!post){
+      return res.status(404).json({error:"Task not exist"})
+    }
+
+    if(post.volunteer && post.volunteer.status !=="open"){
+      return res.status(400).json({error:"Task has already been accepted"});
+    }
+
+    post.volunteer ={
+      userID:userId,
+      name,
+      phone,
+      status:"holding",
+    };
+
+    await post.save();
+
+    res.json({message:"Task has been accepted", volunteer:post.volunteer});
+  }catch (err){
+    console.error(err);
+    res.status(500).json({error:"server error"
+    });
+  }
+});
 module.exports = router;

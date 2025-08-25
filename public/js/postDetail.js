@@ -1,6 +1,40 @@
 const input = document.querySelector('.form-control');
 const commentList = document.querySelector('#comment-list');
 
+
+const postId = document.getElementById("AcceptBtn").dataset.id;
+
+  document.getElementById("AcceptBtn").addEventListener("click", () => {
+      document.getElementById("volunteerForm").style.display = "block";
+    });
+
+  document.getElementById("submitVol").addEventListener("click", async () => {
+    const name = document.getElementById("volName").value;
+    const phone = document.getElementById("volPhone").value;
+
+    try {
+      const res = await fetch(`/acceptTask/${postId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, phone }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        alert(data.message);
+        document.getElementById("AcceptBtn").innerText = "Holding";
+        document.getElementById("AcceptBtn").disabled = true;
+        document.getElementById("volunteerForm").style.display = "none";
+      } else {
+        alert(data.error);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("request error");
+    }
+  });
+
 input.addEventListener('keyup',function(e) {
 
   if(e.key === 'Enter' && input.value.trim() !==''){
@@ -86,7 +120,7 @@ function renderTree(tree) {
     const li = document.createElement('li');
     li.innerHTML = `
       <strong>${c.userId.username}</strong>: ${c.content}
-      <button class="reply-btn" data-id="${c._id}">回复</button>
+      <button class="reply-btn" data-id="${c._id}">Reply</button>
     `;
     if (c.replies.length > 0) {
       li.appendChild(renderTree(c.replies));

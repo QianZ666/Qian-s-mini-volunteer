@@ -6,7 +6,7 @@
 
         <!-- 封面图片 -->
         <% if (post.photoPath) { %>
-          <img src="<%= post.photoPath %>" alt="post-image" class="img-fluid w-50 rounded mb-3">
+          <img src="/uploads/<%= post.photoPath %>" alt="post-image" class="img-fluid w-50 rounded mb-3">
         <% } else { %>
           <img src="https://www.bootdey.com/image/400x150/FFB6C1/000000" alt="default-image" class="img-fluid rounded mb-3">
         <% } %>
@@ -24,12 +24,18 @@
 
             <!-- 帖子内容 -->
             <div class="post-text mb-3">
+              <p><%= post.description %></p>
               <p><strong>📍 Location:</strong> <%= post.location %></p>
               <p><strong>📅 Date:</strong> <%= post.date %> <strong>🕐 Time:</strong> <%= post.time %></p>
               <p><strong>⚠️ Urgency:</strong> <%= post.urgency %></p>
               <p><strong>📞 Contact:</strong> <%= post.contact %></p>
               <hr>
-              <p><%= post.description %></p>
+              <button id="AcceptBtn" class="btn btn-success" data-id="<%= post._id %>">Accept</button>
+              <div id="volunteerForm" style="display:none; margin-top: 10px;">
+                <input type="text" id="volName" placeholder="Name" required />
+                <input type="text" id="volPhone" placeholder="Phone" required />
+                <button id="submitVol" class="btn btn-success">Submit</button>
+              </div>
 
 
             <!-- comment -->

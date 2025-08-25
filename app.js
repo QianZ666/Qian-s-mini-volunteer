@@ -5,13 +5,15 @@ const session = require('express-session');
 const MongoStore = require('connect-mongo');
 const app = express();
 const path = require('path');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const saltRounds = 12;
 const Joi = require("joi");
 const User = require('./models/user');
 const { connectToDatabase} = require('./databaseconnection');
 const uri = `mongodb+srv://${process.env.MONGODB_USER}:${process.env.MONGODB_PASSWORD}@cluster0.qkqrsri.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 const expireTime = 24 * 60 * 60 * 1000; //expires after 1 day  (hours * minutes * seconds * millis)
+const multer = require("multer");
+const upload = multer({ dest: "uploads/", limits: { fileSize: 5 * 1024 * 1024 } });
 
 
 const mongodb_session_secret = process.env.MONGODB_SESSION_SECRET;
@@ -51,7 +53,7 @@ app.use(session({
 }));
 
 app.get('/', async (req, res) => {
-  res.render('main');
+  res.render('login');
 });
 
 app.get("/signup", function(req, res) {
@@ -79,6 +81,18 @@ app.use('/', postRoutes);
 const geocodeRoutes = require("./routes/api/geocode");
 app.use("/api",geocodeRoutes);
 
+//main page route
+app.get('/main', (req, res) => {
+  if (!req.session.authenticated) {
+
+    return res.redirect('/login');
+  }
+  
+  res.render('main', {
+    username: req.session.username,
+    email: req.session.email
+  });
+});
 
 
 //signup route
@@ -123,7 +137,7 @@ app.post('/submitUser', async (req,res) => {
         savedTerms:  [],
         savedPosts:  []
       };
-      await User.insertOne(newUser);
+      await User.create(newUser);
       console.log("Inserted user");
 
       const html = `
@@ -214,7 +228,7 @@ app.post('/loggingin', async (req,res) => {
     req.session.userId        = result[0]._id.toString();
     req.session.cookie.maxAge = expireTime;
 
-    res.redirect('/');
+    res.redirect('/main');
     return;
   }
   else {
@@ -241,13 +255,21 @@ app.post('/loggingin', async (req,res) => {
 
 //profile route
 app.get("/profile", (req, res) => {
-  // if (!req.session.user){
-  //   return res.redirect("/login")
-  // }
+  if (!req.user){
+    return res.redirect("/login")
+  }
 
-  res.render('profile');
+  res.render('profile',{user:req.user});
 
 });
+//edit profile route 
+app.get("/editProfile", (req, res) => {
+  if (!req.user) {
+    return res.redirect("/login"); 
+  }
+  res.render("editProfile", { user: req.user });
+});
+
 
 const apiRoutes = require('./routes/api');
 app.use('/api', apiRoutes);
@@ -258,6 +280,12 @@ app.get('/logout', (req,res) => {
     You are logged out.
     `;
     res.send(html);
+});
+
+app.post("/profile/update", upload.single("profileImage"), (req, res) => {
+  console.log(req.body); 
+  console.log(req.file);
+  res.json({ message: "Profile updated" });
 });
 
 connectToDatabase()
