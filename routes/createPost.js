@@ -65,18 +65,19 @@ router.post('/createPost', upload.single('photo'), async (req, res) => {
 
 // 帖子详情页
 router.get('/post/:id', async (req, res) => {
-  try {
-    const post = await Post.findById(req.params.id).lean();
+  // try {
+    const post = await Post.findById(req.params.id).populate("user");
     // console.log("DEBUG: /post/:id got", req.params.id);
+    let isOwner = false;
+    if(req.session.userId && post.user._id.toString() === req.session.userId){
+       isOwner = true;
+    }
 
-    if (!post) return res.status(404).send('Post not found');
-
-    const isOwner = req.user && post.user.toString() === req.user._id.toString();
-    res.render('postDetail', { post, user: req.user, isOwner });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Server error');
-  }
+    res.render('postDetail', { post,isOwner });
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).send('Server error');
+//   }
 });
 
 // 添加评论
@@ -122,7 +123,7 @@ router.post("/acceptTask/:postId", async(req,res) => {
     }
 
     const postId = req.params.postId;
-    const userId = req.session.user.id;
+    const userId = req.session.userId;
     const {name, phone} = req.body;
 
     const post = await Post.findById(postId);
