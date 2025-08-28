@@ -56,6 +56,7 @@ function initMainPageMap(map) {
     .then(res => res.json())
     .then(posts => {
       posts.forEach(post => {
+        console.log('Posts form backend:', posts);
         const marker = new google.maps.Marker({
           position: post.coords,
           map: map,
@@ -69,7 +70,7 @@ function initMainPageMap(map) {
           content: `
             <div>
               <h3>${post.title}</h3>
-              <p><strong>地点:</strong> ${post.location}</p>
+              <p><strong>location:</strong> ${post.location}</p>
               <p>${post.description}</p>
               <p><a href="/post/${post._id}">Check Detailed Info</a></p>
             </div>

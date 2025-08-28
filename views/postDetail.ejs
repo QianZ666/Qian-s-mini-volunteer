@@ -30,28 +30,29 @@
               <p><strong>⚠️ Urgency:</strong> <%= post.urgency %></p>
               <p><strong>📞 Contact:</strong> <%= post.contact %></p>
               <hr>
+              <% const acceptedVolunteer = post.volunteers && post.volunteers.find(v => v.status === "holding")  %>
               <% if(isOwner) { %>
-                <div class="alert alert-info mt-3">
+                <div id="taskStatus"  class="alert alert-info mt-3">
                   <strong>Task Status:</strong>
-                  <% if(post.volunteer) { %>
-                    Accept by <%= post.volunteer.name %>
-                    (phone: <%= post.volunteer.phone %>)
-                    -Status: <%= post.volunteer.status %>
+                  <% if(acceptedVolunteer) { %>
+                    Accept by <%= acceptedVolunteer.name %>
+                    (phone: <%= acceptedVolunteer.phone %>)
+                    -Status: <%= acceptedVolunteer.status %>
                     <% } else { %>
                       No volunteer has accepted this task yet.
                     <% } %>
                 </div>
                     <% } else { %>
-                      <% if(!post.volunteer || post.volunteer.status === "open") { %>
+                      <% if(!acceptedVolunteer) { %>
                       <button id="AcceptBtn" class="btn btn-success" data-id="<%= post._id %>">Accept</button>
                       <div id="volunteerForm" style="display:none; margin-top: 10px;">
                         <input type="text" id="volName" placeholder="Name" required />
                         <input type="text" id="volPhone" placeholder="Phone" required />
-                        <button id="submitVol" class="btn btn-success">Submit</button>
+                        <button id="submitVol" type ="button" class ="btn btn-success">Submit</button>
                       </div>
                     <% } else { %>
                       <div  class="alert alert-secondary mt-3">
-                         This task has already been accepted.
+                         Accepted by <%= acceptedVolunteer.name %> - Status: <%= acceptedVolunteer.status %>
                       </div>
               <% } %>
              <% } %>
@@ -79,5 +80,6 @@
     </div>
   </div>
 </div>
-<script src="/js/postDetail.js"></script>
+
 <%- include('footer') %> 
+<script src="/js/postDetail.js"></script>

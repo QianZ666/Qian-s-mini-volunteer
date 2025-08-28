@@ -2,38 +2,69 @@ const input = document.querySelector('.form-control');
 const commentList = document.querySelector('#comment-list');
 
 
-const postId = document.getElementById("AcceptBtn").dataset.id;
 
-  document.getElementById("AcceptBtn").addEventListener("click", () => {
+
+
+  const postId = document.getElementById("AcceptBtn")?.dataset.id;
+
+  const btn = document.getElementById("submitVol");
+  const acceptBtn = document.getElementById("AcceptBtn");
+
+  // 检查按钮是否存在
+  console.log("submitVol button:", btn);
+  console.log("AcceptBtn button:", acceptBtn);
+
+  // 点击 Accept 显示表单
+  if (acceptBtn) {
+    acceptBtn.addEventListener("click", () => {
+      console.log("✅ Accept button clicked!");
       document.getElementById("volunteerForm").style.display = "block";
     });
+  }
 
-  document.getElementById("submitVol").addEventListener("click", async () => {
-    const name = document.getElementById("volName").value;
-    const phone = document.getElementById("volPhone").value;
+  // 点击 Submit 提交表单
+  if (btn) {
+    btn.addEventListener("click", async (e) => {
+      e.preventDefault();
+      console.log("✅ Submit button clicked!");
 
-    try {
-      const res = await fetch(`/acceptTask/${postId}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, phone }),
-      });
+      const name = document.getElementById("volName").value;
+      const phone = document.getElementById("volPhone").value;
 
-      const data = await res.json();
+      try {
+        console.log("📡 Sending request to", `/acceptTask/${postId}`, { name, phone });
 
-      if (res.ok) {
-        alert(data.message);
-        document.getElementById("AcceptBtn").innerText = "Holding";
-        document.getElementById("AcceptBtn").disabled = true;
-        document.getElementById("volunteerForm").style.display = "none";
-      } else {
-        alert(data.error);
+        const res = await fetch(`/acceptTask/${postId}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, phone }),
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          alert(data.message);
+          acceptBtn.innerText = "Holding";
+          acceptBtn.disabled = true;
+          document.getElementById("volunteerForm").style.display = "none";
+
+          const statusDiv = document.getElementById("taskStatus");
+          if (statusDiv && data.volunteer) {
+            statusDiv.innerHTML = `Accepted by ${data.volunteer.name} (phone: ${data.volunteer.phone}) - Status: ${data.volunteer.status}`;
+          }
+        } else {
+          alert(data.error);
+        }
+      } catch (err) {
+        console.error(err);
+        alert("request error");
       }
-    } catch (err) {
-      console.error(err);
-      alert("request error");
-    }
-  });
+    });
+  } else {
+    console.error("❌ submitVol button not found!");
+  }
+
+
 
 input.addEventListener('keyup',function(e) {
 

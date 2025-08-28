@@ -132,24 +132,35 @@ router.post("/acceptTask/:postId", async(req,res) => {
       return res.status(404).json({error:"Task not exist"})
     }
 
-    if(post.volunteer && post.volunteer.status !=="open"){
-      return res.status(400).json({error:"Task has already been accepted"});
+    const alreadyAccepted = post.volunteers.some(
+      (v) => v.userID.toString() === userId.toString()
+    );
+
+     if (alreadyAccepted) {
+      return res.status(400).json({ error: "You have already accepted this task" });
     }
 
-    post.volunteer ={
-      userID:userId,
+    const taskAlreadyTaken = post.volunteers.some(
+      (v) => v.status === "holding"
+    );
+    if (taskAlreadyTaken) {
+      return res.status(400).json({ error: "Task has already been accepted by another volunteer" });
+    }
+
+    const newVolunteer = {
+      userID: userId,
       name,
       phone,
-      status:"holding",
+      status: "holding",
     };
+    post.volunteers.push(newVolunteer);
 
     await post.save();
 
-    res.json({message:"Task has been accepted", volunteer:post.volunteer});
-  }catch (err){
+    res.json({ message: "Task has been accepted", volunteer: newVolunteer });
+  } catch (err) {
     console.error(err);
-    res.status(500).json({error:"server error"
-    });
+    res.status(500).json({ error: "Server error" });
   }
 });
 module.exports = router;
