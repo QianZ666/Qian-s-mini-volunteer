@@ -1,9 +1,10 @@
 require('dotenv').config();
 const express = require('express');
-const mongoose = require('mongoose');
-const session = require('express-session');
-const MongoStore = require('connect-mongo');
 const app = express();
+const session = require('express-session');
+const mongoose = require('mongoose');
+const MongoStore = require('connect-mongo');
+
 const path = require('path');
 const bcrypt = require('bcryptjs');
 const saltRounds = 12;
@@ -19,7 +20,7 @@ const upload = multer({ dest: "uploads/", limits: { fileSize: 5 * 1024 * 1024 } 
 const mongodb_session_secret = process.env.MONGODB_SESSION_SECRET;
 const node_session_secret = process.env.NODE_SESSION_SECRET;
 
-
+//======middleware========
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname,'views'));
 app.use(express.urlencoded({ extended: true }));
@@ -27,6 +28,16 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
 
+//session middleware
+app.use(session({
+  secret: process.env.NODE_SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  store: MongoStore.create({ mongoUrl: uri }),
+  cookie:{maxAge:expireTime}
+}));
+
+//require login middleware
 function requireLogin(req, res, next) {
   if (!req.session || !req.session.authenticated) {
     return res.status(401).send(`
@@ -42,27 +53,7 @@ function requireLogin(req, res, next) {
   }
   next();
 }
-
-//session middleware
-app.use(session({
-  secret: process.env.NODE_SESSION_SECRET,
-  resave: false,
-  saveUninitialized: false,
-  store: MongoStore.create({ mongoUrl: uri }),
-  cookie:{maxAge:expireTime}
-}));
-
-app.get('/', async (req, res) => {
-  res.render('login');
-});
-
-app.get("/signup", function(req, res) {
-  res.render('signup');
-});
-//login route
-app.get("/login", function (req, res) {
-  res.render('login');
-});
+//attach user info if logged in
 app.use(async (req, res, next) => {
   if (req.session && req.session.userId) {
     try {
@@ -76,24 +67,17 @@ app.use(async (req, res, next) => {
   }
   next();
 });
-const postRoutes = require('./routes/createPost');
-app.use('/', postRoutes);
-const geocodeRoutes = require("./routes/api/geocode");
-app.use("/api",geocodeRoutes);
 
-//main page route
-app.get('/main', (req, res) => {
-  if (!req.session.authenticated) {
-
-    return res.redirect('/login');
-  }
-  
-  res.render('main', {
-    username: req.session.username,
-    email: req.session.email
-  });
+//======routes=========
+app.get('/', async (req, res) => {
+  res.render('login');
 });
-
+app.get("/signup", function(req, res) {
+  res.render('signup');
+});
+app.get("/login", function (req, res) {
+  res.render('login');
+});
 
 //signup route
 app.post('/submitUser', async (req,res) => {
@@ -252,28 +236,7 @@ app.post('/loggingin', async (req,res) => {
     
   }
 });
-
-//profile route
-app.get("/profile", (req, res) => {
-  if (!req.user){
-    return res.redirect("/login")
-  }
-
-  res.render('profile',{user:req.user});
-
-});
-//edit profile route 
-app.get("/editProfile", (req, res) => {
-  if (!req.user) {
-    return res.redirect("/login"); 
-  }
-  res.render("editProfile", { user: req.user });
-});
-
-
-const apiRoutes = require('./routes/api');
-app.use('/api', apiRoutes);
-
+//logout route
 app.get('/logout', (req,res) => {
 	req.session.destroy();
     var html = `
@@ -282,12 +245,44 @@ app.get('/logout', (req,res) => {
     res.send(html);
 });
 
-app.post("/profile/update", upload.single("profileImage"), (req, res) => {
+//========pages(protected)=========
+//main page route
+app.get('/main', requireLogin,(req, res) => {
+  res.render('main', {
+    username: req.session.username,
+    email: req.session.email
+  });
+});
+
+//profile route
+app.get("/profile",requireLogin, (req, res) => {
+
+  res.render('profile',{user:req.user});
+
+});
+
+//edit profile route 
+app.get("/editProfile", requireLogin,(req, res) => {
+  res.render("editProfile", { user: req.user });
+});
+
+app.post("/profile/update", requireLogin,upload.single("profileImage"), (req, res) => {
   console.log(req.body); 
   console.log(req.file);
   res.json({ message: "Profile updated" });
 });
 
+//=====route modules
+const postRoutes = require('./routes/createPost');
+app.use('/',requireLogin,postRoutes);
+
+const geocodeRoutes = require("./routes/api/geocode");
+app.use("/api",geocodeRoutes);
+
+const apiRoutes = require('./routes/api');
+app.use('/api', apiRoutes);
+
+//=====start server ======
 connectToDatabase()
   .then(() => {
     app.listen(3000, () => console.log('Server started on port 3000'));
