@@ -2,7 +2,7 @@
 let map;
 let marker;
 
-// 通用地图初始化函数
+
 function initMap() {
   const defaultLocation = { lat: 49.2827, lng: -123.1207 };
   const mapElement = document.getElementById("map");
@@ -17,19 +17,19 @@ function initMap() {
     zoom: 13,
   });
 
-  // 判断页面类型（通过 body 或页面中是否存在某些元素）
+
   if (document.getElementById("location")) {
-    // 是 createPost 页面
+
     initCreatePostMap(map);
   } else {
-    // 是主页面
+
     initMainPageMap(map);
   }
 }
 
-// 主页面地图功能
+
 function initMainPageMap(map) {
-  // 尝试定位用户
+
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
       (position) => {
@@ -51,7 +51,7 @@ function initMainPageMap(map) {
     handleLocationError(false, map.getCenter());
   }
 
-  // 加载帖子
+
   fetch('/api/posts')
     .then(res => res.json())
     .then(posts => {
@@ -83,7 +83,7 @@ function initMainPageMap(map) {
     .catch(err => console.error('Failed to load posts:', err));
 }
 
-// createPost 页面地图功能
+
 function initCreatePostMap(map) {
   marker = new google.maps.Marker({
     map: map,
@@ -126,7 +126,6 @@ function initCreatePostMap(map) {
   }
 }
 
-// 地图定位失败提示
 function handleLocationError(browserHasGeolocation, pos) {
   new google.maps.InfoWindow({
     content: browserHasGeolocation
@@ -136,5 +135,4 @@ function handleLocationError(browserHasGeolocation, pos) {
   }).open(map);
 }
 
-// 把 initMap 挂到 window，供 Google Maps 调用
 window.initMap = initMap;

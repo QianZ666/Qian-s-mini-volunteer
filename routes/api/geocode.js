@@ -5,7 +5,6 @@ const router = express.Router();
 
 const GEOCODE_API_KEY = process.env.GEOCODING_API_KEY;
 
-// 反向地理编码：lat/lng -> 地址
 router.get("/reverse-geocode", async (req, res) => {
   const { lat, lng } = req.query;
 
