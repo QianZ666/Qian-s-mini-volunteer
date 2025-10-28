@@ -16,7 +16,6 @@ const expireTime = 24 * 60 * 60 * 1000; //expires after 1 day  (hours * minutes 
 const multer = require("multer");
 const upload = multer({ dest: "uploads/", limits: { fileSize: 5 * 1024 * 1024 } });
 
-
 const mongodb_session_secret = process.env.MONGODB_SESSION_SECRET;
 const node_session_secret = process.env.NODE_SESSION_SECRET;
 

@@ -2,12 +2,12 @@ const express = require('express');
 const router = express.Router();
 const Post = require('../models/post');
 
-// GET /api/posts - 获取所有 posts 数据
+// GET /api/posts
 router.get('/posts', async (req, res) => {
   try {
     const posts = await Post.find()
-      .select('title location coords description createdAt') // 只返回需要的字段
-      .lean(); // 让它返回普通 JS 对象，性能更好
+      .select('title location coords description createdAt') 
+      .lean(); 
 
     res.json(posts);
   } catch (err) {

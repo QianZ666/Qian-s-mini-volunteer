@@ -1,38 +1,28 @@
 const input = document.querySelector('.form-control');
 const commentList = document.querySelector('#comment-list');
+const postId = document.getElementById("AcceptBtn")?.dataset.id;
+const btn = document.getElementById("submitVol");
+const acceptBtn = document.getElementById("AcceptBtn");
 
 
-
-
-
-  const postId = document.getElementById("AcceptBtn")?.dataset.id;
-
-  const btn = document.getElementById("submitVol");
-  const acceptBtn = document.getElementById("AcceptBtn");
-
-  // 检查按钮是否存在
-  console.log("submitVol button:", btn);
-  console.log("AcceptBtn button:", acceptBtn);
-
-  // 点击 Accept 显示表单
+  // hit Accept to show the post
   if (acceptBtn) {
     acceptBtn.addEventListener("click", () => {
-      console.log("✅ Accept button clicked!");
       document.getElementById("volunteerForm").style.display = "block";
     });
   }
 
-  // 点击 Submit 提交表单
+  //hit submit to post
   if (btn) {
     btn.addEventListener("click", async (e) => {
       e.preventDefault();
-      console.log("✅ Submit button clicked!");
+      console.log("Submit button clicked!");
 
       const name = document.getElementById("volName").value;
       const phone = document.getElementById("volPhone").value;
 
       try {
-        console.log("📡 Sending request to", `/acceptTask/${postId}`, { name, phone });
+        console.log("Sending request to", `/acceptTask/${postId}`, { name, phone });
 
         const res = await fetch(`/acceptTask/${postId}`, {
           method: "POST",
@@ -61,7 +51,7 @@ const commentList = document.querySelector('#comment-list');
       }
     });
   } else {
-    console.error("❌ submitVol button not found!");
+    console.error("submitVol button not found!");
   }
 
 
@@ -128,8 +118,6 @@ async function loadComments(postId) {
 function renderComments(comments) {
   const container = document.getElementById('comment-list');
   container.innerHTML = '';
-
-  // 递归构建评论树
   function buildTree(parentId) {
     return comments
       .filter(c => String(c.parentId) === String(parentId))

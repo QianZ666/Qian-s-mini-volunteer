@@ -5,7 +5,7 @@ const axios = require('axios');
 const path = require('path');
 const Post = require('../models/post');
 
-// 配置 multer：上传到 public/uploads
+//  multer：to public/uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, path.join(__dirname, '..', 'public', 'uploads'));
@@ -17,7 +17,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// 登录中间件
+// middleware
 function isLoggedIn(req, res, next) {
   if (req.session && req.session.userId) {
     req.user = { _id: req.session.userId };
@@ -26,19 +26,18 @@ function isLoggedIn(req, res, next) {
   return res.status(401).send('Not logged in');
 }
 
-// 发帖页面
+// get post
 router.get('/createPost', (req, res) => {
   res.render('createPost', {
     GEOCODING_API_KEY: process.env.GEOCODING_API_KEY
   });
 });
 
-// 创建帖子
+// create post 
 router.post('/createPost', upload.single('photo'), async (req, res) => {
   try {
     const { title, location, date, time, urgency, contact, description } = req.body;
 
-    // 调用 geocode 获取经纬度
     const coords = await geocodeAddress(location);
 
     const newPost = new Post({
@@ -50,9 +49,10 @@ router.post('/createPost', upload.single('photo'), async (req, res) => {
       urgency,
       contact,
       description,
-      photoPath: req.file ? `/uploads/${req.file.filename}` : null,
+      // photoPath: req.file ? `/uploads/${req.file.filename}` : null,
+      photoPath: req.file ? `${req.file.filename}` : null,
       user: req.user._id,
-      comments: []  // 初始化评论数组
+      comments: [] 
     });
 
     await newPost.save();
@@ -63,7 +63,7 @@ router.post('/createPost', upload.single('photo'), async (req, res) => {
   }
 });
 
-// 帖子详情页
+// the detailed post
 router.get('/post/:id', async (req, res) => {
   // try {
     const post = await Post.findById(req.params.id).populate("user");
@@ -80,7 +80,7 @@ router.get('/post/:id', async (req, res) => {
 //   }
 });
 
-// 添加评论
+// add commmet
 router.post('/post/:id/comment', isLoggedIn, async (req, res) => {
   console.log('Hit comment route',req.params.id, req.body);
   try {
@@ -104,7 +104,7 @@ router.post('/post/:id/comment', isLoggedIn, async (req, res) => {
   }
 });
 
-// geocode 地址
+// geocode address
 async function geocodeAddress(address) {
   const apiKey = process.env.GEOCODING_API_KEY;
   const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${apiKey}`;
@@ -115,7 +115,7 @@ async function geocodeAddress(address) {
   const location = response.data.results[0].geometry.location;
   return { lat: location.lat, lng: location.lng };
 }
-//接受任务
+//accept task
 router.post("/acceptTask/:postId", async(req,res) => {
   try {
     if(!req.session.userId){

@@ -3,17 +3,8 @@
   <div class="row justify-content-center">
     <div class="col-md-8">
       <div class="post-content shadow-sm p-4 bg-white rounded">
-
-        <!-- 封面图片 -->
-        <% if (post.photoPath) { %>
-          <img src="/uploads/<%= post.photoPath %>" alt="post-image" class="img-fluid w-50 rounded mb-3">
-        <% } else { %>
-          <img src="https://www.bootdey.com/image/400x150/FFB6C1/000000" alt="default-image" class="img-fluid rounded mb-3">
-        <% } %>
-        
-
         <div class="post-container">
-          <!-- 发帖人头像 -->
+          <!-- profile photo -->
           <img src="https://bootdey.com/img/Content/avatar/avatar6.png" alt="user" class="profile-photo-md float-start me-3">
 
           <div class="post-detail">
@@ -22,13 +13,13 @@
               <p class="text-muted">Posted on <%= post.createdAt.toLocaleString() %></p>
             </div>
 
-            <!-- 帖子内容 -->
+            <!-- post content -->
             <div class="post-text mb-3">
               <p><%= post.description %></p>
-              <p><strong>📍 Location:</strong> <%= post.location %></p>
-              <p><strong>📅 Date:</strong> <%= post.date %> <strong>🕐 Time:</strong> <%= post.time %></p>
-              <p><strong>⚠️ Urgency:</strong> <%= post.urgency %></p>
-              <p><strong>📞 Contact:</strong> <%= post.contact %></p>
+              <p><strong>📍</strong> <%= post.location %></p>
+              <p><strong>📅</strong> <%= post.date.toLocaleDateString('en-CA') %> <strong>🕐 Time:</strong> <%= post.time %></p>
+              <p><strong>⚠️</strong> <%= post.urgency %></p>
+              <p><strong>📞</strong> <%= post.contact %></p>
               <hr>
               <% const acceptedVolunteer = post.volunteers && post.volunteers.find(v => v.status === "holding")  %>
               <% if(isOwner) { %>
@@ -56,6 +47,13 @@
                       </div>
               <% } %>
              <% } %>
+                     <!-- post image -->
+              <% if (post.photoPath) { %>
+                <img src="/uploads/<%= post.photoPath %>" alt="post-image" class="img-fluid w-50 rounded mb-3">
+
+              <% } else { %>
+                <img src="https://www.bootdey.com/image/400x150/FFB6C1/000000" alt="default-image" class="img-fluid rounded mb-3">
+              <% } %>
 
             <!-- comment -->
             <form action="/post/<%= post._id %>/comment" method="POST" class="d-flex mt-2">
