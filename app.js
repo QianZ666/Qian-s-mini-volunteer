@@ -254,10 +254,14 @@ app.get('/main', requireLogin,(req, res) => {
 });
 
 //profile route
-app.get("/profile",requireLogin, (req, res) => {
-
-  res.render('profile',{user:req.user});
-
+app.get("/profile",async(req, res) => {
+    try {
+    const currentUser = await User.findById(req.user._id); 
+    res.render("profile", { user: currentUser });
+  } catch (err) {
+    console.error("Error loading profile:", err);
+    res.status(500).send("Server error loading profile");
+  }
 });
 
 //edit profile route 
@@ -265,10 +269,36 @@ app.get("/editProfile", requireLogin,(req, res) => {
   res.render("editProfile", { user: req.user });
 });
 
-app.post("/profile/update", requireLogin,upload.single("profileImage"), (req, res) => {
-  console.log(req.body); 
-  console.log(req.file);
-  res.json({ message: "Profile updated" });
+app.get("/data", requireLogin, (req, res) => {
+  res.json({
+    username: req.user.username,
+    bio: req.user.bio || "",
+    location: req.user.location || "",
+    age: req.user.age || null,
+    gender: req.user.gender || "",
+    avatarUrl: req.user.avatarUrl || ""
+  });
+});
+
+app.post("/profile/update", requireLogin, upload.single("profileImage"),  async (req, res) => {
+   try {
+    const { name, bio, location, age, gender } = req.body;
+    const parsedAge = age ? parseInt(age) : null;
+
+    const updateData = { username: name, bio, location, age: parsedAge, gender };
+    if (req.file) updateData.avatarUrl = `/uploads/${req.file.filename}`;
+
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user._id,
+      updateData,
+      { new: true, runValidators: true }
+    );
+
+    res.json(updatedUser);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 //=====route modules

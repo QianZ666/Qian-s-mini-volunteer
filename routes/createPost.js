@@ -2,20 +2,9 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const axios = require('axios');
-const path = require('path');
+// const path = require('path');
 const Post = require('../models/post');
-
-//  multer：to public/uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, '..', 'public', 'uploads'));
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, uniqueSuffix + '-' + file.originalname);
-  }
-});
-const upload = multer({ storage });
+const upload = require('../middleware/upload');
 
 // middleware
 function isLoggedIn(req, res, next) {

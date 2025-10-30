@@ -18,7 +18,11 @@ const userSchema = new mongoose.Schema({
   ref: 'Post'
 }],
   savedTerms: Array,
-  savedPosts: Array
+  savedPosts: Array,
+
+  bio: {type:String, default:''},
+  location: { type:String, default:null},
+  age: {type: String, default:''}
 });
 
 module.exports = mongoose.model('User', userSchema);

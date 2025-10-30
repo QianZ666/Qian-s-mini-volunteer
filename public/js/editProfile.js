@@ -107,6 +107,7 @@ async function saveUserInfo() {
     if (!response.ok) throw new Error("Failed to update profile");
     showMessage("Profile updated successfully!", "success");
     document.getElementById("personalInfoFields").disabled = true;
+    await loadUserInfo();
   } catch (error) {
     showMessage(error.message, "error");
   }
